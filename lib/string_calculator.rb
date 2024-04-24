@@ -1,24 +1,49 @@
 class StringCalculator
 
-  def add(numbers)
-    return 0 if numbers.empty?
-
-    if numbers.start_with?("//")
-      delimiter_index = numbers.index("\n")
-      delimiter = numbers[2..delimiter_index - 1]
-      numbers = numbers[delimiter_index + 1..-1]
+  def add numbers_string = ""
+    @numbers_string = numbers_string
+    @separators = get_separators
+    @numbers = get_numbers
+    unless has_negatives
+      if @numbers.empty?
+        0
+      elsif @numbers.length == 1
+        @numbers[0]
+      else
+        @numbers.inject {|acu, v| acu + v }
+      end
     else
-      delimiter = ","
-      numbers = numbers
+      raise StandardError, "negative numbers not allowed #{has_negatives.join(',')}"
     end
-
-    numbers_array = numbers.split(/#{delimiter}|\n/)
-    numbers_array.map!(&:to_i)
-    negative_numbers = numbers_array.select { |num| num < 0 }
-    if negative_numbers.any?
-      raise StandardError, "negative numbers not allowed #{negative_numbers.join(',')}"
-    end
-    sum = numbers_array.sum
-
   end
+
+  def get_separators
+    separators = [","]
+    if @numbers_string =~ /^\/\/.*/
+      sep = @numbers_string.split("//")[1].split("\n")[0]
+      separators = sep.split("][").map { |v| v.gsub("[",""); }
+      separators.map! { |v| v.gsub("]",""); }
+    end
+    separators
+  end
+
+  def get_numbers
+    n_string = @numbers_string
+    if n_string =~ /^\/\/.*/
+      n_string = n_string.split("\n")[1]
+    else
+      n_string = n_string.gsub "\n" , @separators[0]
+    end
+    @separators.each { |sep| n_string = n_string.gsub sep, ","}
+    numbers = n_string.split ","
+    numbers.map! {|n| if n.to_i < 1000 then n.to_i else 0 end }
+    numbers
+  end
+
+  def has_negatives
+    negatives = []
+    @numbers.each { |i| negatives << i if  i < 0 }
+    if negatives.empty? then false else negatives end
+  end
+
 end

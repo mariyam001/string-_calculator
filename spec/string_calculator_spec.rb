@@ -46,6 +46,10 @@ describe StringCalculator do
         expect(@string_calculator.add("//!\n1!2")).to eq(3)
       end
 
+       it "Multiple delimiters format - //[***][---]\\n1***2---3" do
+         expect(@string_calculator.add("//[***][---]\n1***2---3")).to eq(6)
+      end
+
       describe 'with delimiters of longer than 1 char' do
         it 'can parse the delimiter correctly' do
           expect(@string_calculator.add("//[***]\n1***2***3")).to eq(6)
@@ -66,6 +70,6 @@ describe StringCalculator do
        expect { @string_calculator.add("1,-2,3,-4") }.to raise_error(StandardError, "negative numbers not allowed -2,-4")
      end
    end
-
   end
+  
 end
